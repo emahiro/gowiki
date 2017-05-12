@@ -15,5 +15,10 @@
         <input type="submit" value="Save">
       </div>
     </form>
+    {{if .Body }}
+      <form class="delete-btn" action="/delete/{{.Title}}" method="POST">
+        <input type="submit" name="delete" value="Delete">
+      </form>
+    {{end}}
   </body>
 </html>

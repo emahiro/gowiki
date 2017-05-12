@@ -15,7 +15,7 @@ var dataDir = "data/"
 var templates = template.Must(template.ParseFiles("views/view.html", "views/edit.html"))
 
 // validation
-var validPath = regexp.MustCompile("^/(view|edit|save)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile("^/(view|edit|save|delete)/([a-zA-Z0-9]+)$")
 
 // Page Title and Body
 type Page struct {
@@ -35,6 +35,14 @@ func (p *Page) save() error {
 		return err
 	}
 
+	return nil
+}
+
+func (p *Page) delete() error {
+	err := os.Remove(dataDir + p.Title + ".txt")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -100,11 +108,29 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 
-	http.Redirect(w, r, "/view"+title, http.StatusFound)
+	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
-func deleteHandler(w http.ResponseWriter, r *http.Request) {
+func deleteHandler(w http.ResponseWriter, r *http.Request, title string) {
+	page, err := loadPage(title)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
 
+	if page.Title == "FrontPage" {
+		fmt.Println("FrontPageは削除できません")
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	err = page.delete()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Println("DELETE SUCCESS")
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -112,5 +138,6 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
+	http.HandleFunc("/delete/", makeHandler(deleteHandler))
 	http.ListenAndServe(":8080", nil)
 }
