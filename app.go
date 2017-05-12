@@ -60,7 +60,7 @@ func renderTemplate(w http.ResponseWriter, tmpl string, page *Page) {
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		matched := validPath.FindStringSubmatch(r.URL.Path)
-		if matched != nil {
+		if matched == nil {
 			http.NotFound(w, r)
 			return
 		}
@@ -77,7 +77,6 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	if err != nil {
 		fmt.Println(title + " is not found")
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
 	}
 
 	renderTemplate(w, "view", page)
@@ -92,9 +91,26 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	renderTemplate(w, "edit", page)
 }
 
+func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+	body := []byte(r.FormValue("body"))
+	page := &Page{Title: title, Body: body}
+	err := page.save()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/view"+title, http.StatusFound)
+}
+
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func main() {
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
+	http.HandleFunc("/save/", makeHandler(saveHandler))
 	http.ListenAndServe(":8080", nil)
 }

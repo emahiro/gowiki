@@ -1,6 +1,6 @@
 gowiki
 ./gowiki
-wiki
-./wiki
+app
+./app
 
 data/*

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>gowiki view</title>
+  </head>
+  <body>
+    <h1>Title: {{.Title}}</h1>
+    <a href="/edit/{{.Title}}">Edit</a>
+    <div class="body">
+      <p>Body: {{printf "%s" .Body}}</p>
+    </div>
+  </body>
+</html>
