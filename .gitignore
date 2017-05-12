@@ -2,3 +2,5 @@ gowiki
 ./gowiki
 wiki
 ./wiki
+
+data/*
