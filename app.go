@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -8,6 +9,9 @@ import (
 	"os"
 	"regexp"
 )
+
+// version
+var version = "1.0.0"
 
 var dataDir = "data/"
 
@@ -134,6 +138,18 @@ func deleteHandler(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 func main() {
+	// version管理
+	showVersion := false
+	// -v が指定されたときに、showVersion変数がtrueにする
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.Parse()
+	if showVersion {
+		fmt.Println("version: ", version)
+		return
+	}
+
+	// httpのルーテゥングとハンドラの設定
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
